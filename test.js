@@ -1,5 +1,4 @@
-const { spawnSync } = require('child_process');
-
+const { spawnSync } = require('cross-spawn');
 const { removeSync, readdirSync } = require('fs-extra');
 const tape = require('tape');
 const glob = require('glob-all');
