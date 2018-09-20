@@ -9,18 +9,25 @@ const { getUserCachePath } = require('./lib/shared');
 const initialWorkingDir = process.cwd();
 
 const mkCommand = cmd => (args, options = {}) => {
-  const {error, stdout, stderr, status} = spawnSync(cmd, args, {
-    env: {
-      ...process.env,
-      SLS_DEBUG: 't',
-      ...(process.env.CI ? { LC_ALL: 'C.UTF-8', LANG: 'C.UTF-8' } : {}),
-    },
-    ...options
-  });
-  if (error)
-    throw error;
+  const { error, stdout, stderr, status } = spawnSync(
+    cmd,
+    args,
+    Object.assign(
+      {
+        env: Object.assign(
+          process.env,
+          { SLS_DEBUG: 't' },
+          process.env.CI ? { LC_ALL: 'C.UTF-8', LANG: 'C.UTF-8' } : {}
+        )
+      },
+      options
+    )
+  );
+  if (error) throw error;
   if (status)
-    throw new Error(`${cmd} failed with status code ${status} and stderr: ${stderr}`)
+    throw new Error(
+      `${cmd} failed with status code ${status} and stderr: ${stderr}`
+    );
   return stdout && stdout.toString().trim();
 };
 const sls = mkCommand('sls');
@@ -46,7 +53,7 @@ teardown = () => {
     'slimPatterns.yml',
     'serverless.yml.bak',
     getUserCachePath(),
-    ...glob.sync('serverless-python-requirements-*.tgz').found,
+    ...glob.sync('serverless-python-requirements-*.tgz').found
   ].map(path => removeSync(path));
   git(['checkout', 'serverless.yml']);
   process.chdir(initialWorkingDir);
@@ -63,10 +70,9 @@ const test = (desc, func) =>
     }
   });
 
-
 test('py3.6 can package flask with default options', t => {
   process.chdir('tests/base');
-  const path = npm(['pack', '../..'])
+  const path = npm(['pack', '../..']);
   npm(['i', path]);
   sls(['package']);
   unzip(['.serverless/sls-py-req-test.zip', '-d', 'puck']);
@@ -77,12 +83,15 @@ test('py3.6 can package flask with default options', t => {
 
 test('py3.6 can package flask with zip option', t => {
   process.chdir('tests/base');
-  const path = npm(['pack', '../..'])
+  const path = npm(['pack', '../..']);
   npm(['i', path]);
   sls(['--zip=true', 'package']);
   unzip(['.serverless/sls-py-req-test.zip', '-d', 'puck']);
   const files = readdirSync('puck');
-  t.true(files.includes('.requirements.zip'), 'zipped requirements are packaged');
+  t.true(
+    files.includes('.requirements.zip'),
+    'zipped requirements are packaged'
+  );
   t.true(files.includes('unzip_requirements.py'), 'unzip util is packaged');
   t.false(files.includes('flask'), "flask isn't packaged on its own");
   t.end();
