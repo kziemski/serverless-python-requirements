@@ -2,7 +2,7 @@ const { spawnSync } = require('child_process');
 
 const { pathExistsSync, removeSync, readdirSync } = require('fs-extra');
 const tape = require('tape');
-const { GlobSync } = require('glob');
+const glob = require('glob-all');
 
 const { getUserCachePath } = require('./lib/shared');
 
@@ -46,7 +46,7 @@ teardown = () => {
     'slimPatterns.yml',
     'serverless.yml.bak',
     getUserCachePath(),
-    ...GlobSync('serverless-python-requirements-*.tgz').found,
+    ...glob.sync('serverless-python-requirements-*.tgz').found,
   ].map(path => removeSync(path));
   git(['checkout', 'serverless.yml']);
   process.chdir(initialWorkingDir);
