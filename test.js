@@ -1,6 +1,6 @@
 const { spawnSync } = require('child_process');
 
-const { pathExistsSync, removeSync, readdirSync } = require('fs-extra');
+const { removeSync, readdirSync } = require('fs-extra');
 const tape = require('tape');
 const glob = require('glob-all');
 
@@ -39,7 +39,7 @@ const setup = () => {
   removeSync(getUserCachePath());
 };
 
-teardown = () => {
+const teardown = () => {
   [
     'puck',
     'puck2',
