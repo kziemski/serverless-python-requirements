@@ -96,3 +96,15 @@ test('py3.6 can package flask with zip option', t => {
   t.false(files.includes('flask'), "flask isn't packaged on its own");
   t.end();
 });
+
+test('py3.6 can package flask with slim option', t => {
+  process.chdir('tests/base');
+  const path = npm(['pack', '../..']);
+  npm(['i', path]);
+  sls(['--slim=true', 'package']);
+  unzip(['.serverless/sls-py-req-test.zip', '-d', 'puck']);
+  const files = readdirSync('puck');
+  t.true(files.includes('flask'), 'flask is packaged');
+  t.deepEqual(glob.sync('puck/**/*.pyc'), [], 'no pyc files packaged');
+  t.end();
+});
