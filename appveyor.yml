@@ -4,11 +4,8 @@ init:
     Install-Product node 6
 
     npm i -g serverless
-build: off
-test_script:
-- cmd: >-
-    cd example
 
     npm i
-
-    sls package --pythonBin=c:/python36/python.exe
+build: off
+test_script:
+- cmd: node test.js
