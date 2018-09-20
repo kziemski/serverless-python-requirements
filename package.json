@@ -40,7 +40,7 @@
   "scripts": {
     "test": "node test.js && bats test.bats",
     "lint": "eslint *.js lib/*.js && prettier -l index.js lib/*.js || (echo need formatting ; exit 1)",
-    "format": "prettier --write index.js lib/*.js"
+    "format": "prettier --write index.js lib/*.js test.js"
   },
   "devDependencies": {
     "eslint": "*",

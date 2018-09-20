@@ -53,7 +53,7 @@ const teardown = () => {
     'slimPatterns.yml',
     'serverless.yml.bak',
     getUserCachePath(),
-    ...glob.sync('serverless-python-requirements-*.tgz'),
+    ...glob.sync('serverless-python-requirements-*.tgz')
   ].map(path => removeSync(path));
   git(['checkout', 'serverless.yml']);
   process.chdir(initialWorkingDir);

@@ -4,8 +4,9 @@ init:
     Install-Product node 6
 
     npm i -g serverless
-
-    npm i
 build: off
 test_script:
-- cmd: node test.js
+- cmd: >-
+    npm i
+
+    node test.js
