@@ -1,4 +1,4 @@
-const { spawnSync } = require('cross-spawn');
+const crossSpawn = require('cross-spawn');
 const { removeSync, readdirSync } = require('fs-extra');
 const tape = require('tape');
 const glob = require('glob-all');
@@ -8,7 +8,7 @@ const { getUserCachePath } = require('./lib/shared');
 const initialWorkingDir = process.cwd();
 
 const mkCommand = cmd => (args, options = {}) => {
-  const { error, stdout, stderr, status } = spawnSync(
+  const { error, stdout, stderr, status } = crossSpawn.sync(
     cmd,
     args,
     Object.assign(
