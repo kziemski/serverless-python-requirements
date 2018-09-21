@@ -45,8 +45,9 @@
   "devDependencies": {
     "eslint": "*",
     "prettier": "*",
-    "cross-spawn": "^6.0.5",
-    "tape": "^4.9.1"
+    "cross-spawn": "*",
+    "deasync-promise": "*",
+    "tape": "*"
   },
   "dependencies": {
     "appdirectory": "^0.1.0",

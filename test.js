@@ -1,7 +1,9 @@
 const crossSpawn = require('cross-spawn');
-const { removeSync, readdirSync } = require('fs-extra');
-const tape = require('tape');
+const deasync = require('deasync-promise');
 const glob = require('glob-all');
+const JSZip = require('jszip');
+const tape = require('tape');
+const { removeSync, readFileSync, readdirSync } = require('fs-extra');
 
 const { getUserCachePath } = require('./lib/shared');
 
@@ -26,16 +28,13 @@ const mkCommand = cmd => (args, options = {}) => {
   if (status) {
     console.error(stdout.toString());
     console.error(stderr.toString());
-    throw new Error(
-      `${cmd} failed with status code ${status}`
-    );
+    throw new Error(`${cmd} failed with status code ${status}`);
   }
   return stdout && stdout.toString().trim();
 };
 const sls = mkCommand('sls');
 const git = mkCommand('git');
 const npm = mkCommand('npm');
-const unzip = mkCommand('unzip');
 
 const setup = () => {
   removeSync(getUserCachePath());
@@ -73,22 +72,22 @@ const test = (desc, func) =>
   });
 
 const getPythonBin = (version = 3) => {
-  if (![2, 3].includes(version))
-    throw new Error('version must be 2 or 3')
+  if (![2, 3].includes(version)) throw new Error('version must be 2 or 3');
   if (process.platform === 'win32')
     return `c:/python${version === 2 ? '27' : '36'}-x64/python.exe`;
-  else
-    return version === 2 ? 'python2.7' : 'python3.6';
+  else return version === 2 ? 'python2.7' : 'python3.6';
 };
+
+const listZipFiles = filename =>
+  Object.keys(deasync(new JSZip().loadAsync(readFileSync(filename))).files);
 
 test('default pythonBin can package flask with default options', t => {
   process.chdir('tests/base');
   const path = npm(['pack', '../..']);
   npm(['i', path]);
   sls(['package']);
-  unzip(['.serverless/sls-py-req-test.zip', '-d', 'puck']);
-  const files = readdirSync('puck');
-  t.true(files.includes('flask'), 'flask is packaged');
+  const zipfiles = listZipFiles('.serverless/sls-py-req-test.zip');
+  t.true(zipfiles.includes('flask/__init__.py'), 'flask is packaged');
   t.end();
 });
 
@@ -97,9 +96,8 @@ test('py3.6 can package flask with default options', t => {
   const path = npm(['pack', '../..']);
   npm(['i', path]);
   sls([`--pythonBin=${getPythonBin(3)}`, 'package']);
-  unzip(['.serverless/sls-py-req-test.zip', '-d', 'puck']);
-  const files = readdirSync('puck');
-  t.true(files.includes('flask'), 'flask is packaged');
+  const zipfiles = listZipFiles('.serverless/sls-py-req-test.zip');
+  t.true(zipfiles.includes('flask/__init__.py'), 'flask is packaged');
   t.end();
 });
 
@@ -108,14 +106,16 @@ test('py3.6 can package flask with zip option', t => {
   const path = npm(['pack', '../..']);
   npm(['i', path]);
   sls([`--pythonBin=${getPythonBin(3)}`, '--zip=true', 'package']);
-  unzip(['.serverless/sls-py-req-test.zip', '-d', 'puck']);
-  const files = readdirSync('puck');
+  const zipfiles = listZipFiles('.serverless/sls-py-req-test.zip');
   t.true(
-    files.includes('.requirements.zip'),
+    zipfiles.includes('.requirements.zip'),
     'zipped requirements are packaged'
   );
-  t.true(files.includes('unzip_requirements.py'), 'unzip util is packaged');
-  t.false(files.includes('flask'), "flask isn't packaged on its own");
+  t.true(zipfiles.includes('unzip_requirements.py'), 'unzip util is packaged');
+  t.false(
+    zipfiles.includes('flask/__init__.py'),
+    "flask isn't packaged on its own"
+  );
   t.end();
 });
 
@@ -124,9 +124,12 @@ test('py3.6 can package flask with slim option', t => {
   const path = npm(['pack', '../..']);
   npm(['i', path]);
   sls([`--pythonBin=${getPythonBin(3)}`, '--slim=true', 'package']);
-  unzip(['.serverless/sls-py-req-test.zip', '-d', 'puck']);
-  const files = readdirSync('puck');
-  t.true(files.includes('flask'), 'flask is packaged');
-  t.deepEqual(glob.sync('puck/**/*.pyc'), [], 'no pyc files packaged');
+  const zipfiles = listZipFiles('.serverless/sls-py-req-test.zip');
+  t.true(zipfiles.includes('flask/__init__.py'), 'flask is packaged');
+  t.deepEqual(
+    zipfiles.filter(filename => filename.endsWith('.pyc')),
+    [],
+    'no pyc files packaged'
+  );
   t.end();
 });
