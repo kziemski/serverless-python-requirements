@@ -24,8 +24,8 @@ const mkCommand = cmd => (args, options = {}) => {
   );
   if (error) throw error;
   if (status) {
-    console.error(stdout.toString()):
-    console.error(stderr.toString()):
+    console.error(stdout.toString());
+    console.error(stderr.toString());
     throw new Error(
       `${cmd} failed with status code ${status}`
     );
