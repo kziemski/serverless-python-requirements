@@ -72,7 +72,16 @@ const test = (desc, func) =>
     }
   });
 
-test('py3.6 can package flask with default options', t => {
+const getPythonBin = (version = 3) => {
+  if (![2, 3].includes(version))
+    throw new Error('version must be 2 or 3')
+  if (process.platform === 'win32')
+    return `c:/python${version === 2 ? '27' : '36'}-x64/python.exe`;
+  else
+    return version === 2 ? 'python2.7' : 'python3.6';
+};
+
+test('default pythonBin can package flask with default options', t => {
   process.chdir('tests/base');
   const path = npm(['pack', '../..']);
   npm(['i', path]);
@@ -83,11 +92,22 @@ test('py3.6 can package flask with default options', t => {
   t.end();
 });
 
+test('py3.6 can package flask with default options', t => {
+  process.chdir('tests/base');
+  const path = npm(['pack', '../..']);
+  npm(['i', path]);
+  sls([`--pythonBin=${getPythonBin(3)}`, 'package']);
+  unzip(['.serverless/sls-py-req-test.zip', '-d', 'puck']);
+  const files = readdirSync('puck');
+  t.true(files.includes('flask'), 'flask is packaged');
+  t.end();
+});
+
 test('py3.6 can package flask with zip option', t => {
   process.chdir('tests/base');
   const path = npm(['pack', '../..']);
   npm(['i', path]);
-  sls(['--zip=true', 'package']);
+  sls([`--pythonBin=${getPythonBin(3)}`, '--zip=true', 'package']);
   unzip(['.serverless/sls-py-req-test.zip', '-d', 'puck']);
   const files = readdirSync('puck');
   t.true(
@@ -103,7 +123,7 @@ test('py3.6 can package flask with slim option', t => {
   process.chdir('tests/base');
   const path = npm(['pack', '../..']);
   npm(['i', path]);
-  sls(['--slim=true', 'package']);
+  sls([`--pythonBin=${getPythonBin(3)}`, '--slim=true', 'package']);
   unzip(['.serverless/sls-py-req-test.zip', '-d', 'puck']);
   const files = readdirSync('puck');
   t.true(files.includes('flask'), 'flask is packaged');
