@@ -3,7 +3,7 @@ const deasync = require('deasync-promise');
 const glob = require('glob-all');
 const JSZip = require('jszip');
 const tape = require('tape');
-const { removeSync, readFileSync, readdirSync } = require('fs-extra');
+const { removeSync, readFileSync } = require('fs-extra');
 const { sep } = require('path');
 
 const { getUserCachePath } = require('./lib/shared');
@@ -27,8 +27,8 @@ const mkCommand = cmd => (args, options = {}) => {
   );
   if (error) throw error;
   if (status) {
-    console.error(stdout.toString());
-    console.error(stderr.toString());
+    console.error(stdout.toString()); // eslint-disable-line no-console
+    console.error(stderr.toString()); // eslint-disable-line no-console
     throw new Error(`${cmd} failed with status code ${status}`);
   }
   return stdout && stdout.toString().trim();
