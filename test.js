@@ -4,6 +4,7 @@ const glob = require('glob-all');
 const JSZip = require('jszip');
 const tape = require('tape');
 const { removeSync, readFileSync, readdirSync } = require('fs-extra');
+const { sep } = require('path');
 
 const { getUserCachePath } = require('./lib/shared');
 
@@ -87,7 +88,7 @@ test('default pythonBin can package flask with default options', t => {
   npm(['i', path]);
   sls(['package']);
   const zipfiles = listZipFiles('.serverless/sls-py-req-test.zip');
-  t.true(zipfiles.includes('flask/__init__.py'), 'flask is packaged');
+  t.true(zipfiles.includes(`flask${sep}__init__.py`), 'flask is packaged');
   t.end();
 });
 
@@ -97,7 +98,7 @@ test('py3.6 can package flask with default options', t => {
   npm(['i', path]);
   sls([`--pythonBin=${getPythonBin(3)}`, 'package']);
   const zipfiles = listZipFiles('.serverless/sls-py-req-test.zip');
-  t.true(zipfiles.includes('flask/__init__.py'), 'flask is packaged');
+  t.true(zipfiles.includes(`flask${sep}__init__.py`), 'flask is packaged');
   t.end();
 });
 
@@ -111,9 +112,9 @@ test('py3.6 can package flask with zip option', t => {
     zipfiles.includes('.requirements.zip'),
     'zipped requirements are packaged'
   );
-  t.true(zipfiles.includes('unzip_requirements.py'), 'unzip util is packaged');
+  t.true(zipfiles.includes(`unzip_requirements.py`), 'unzip util is packaged');
   t.false(
-    zipfiles.includes('flask/__init__.py'),
+    zipfiles.includes(`flask${sep}__init__.py`),
     "flask isn't packaged on its own"
   );
   t.end();
@@ -125,7 +126,7 @@ test('py3.6 can package flask with slim option', t => {
   npm(['i', path]);
   sls([`--pythonBin=${getPythonBin(3)}`, '--slim=true', 'package']);
   const zipfiles = listZipFiles('.serverless/sls-py-req-test.zip');
-  t.true(zipfiles.includes('flask/__init__.py'), 'flask is packaged');
+  t.true(zipfiles.includes(`flask${sep}__init__.py`), 'flask is packaged');
   t.deepEqual(
     zipfiles.filter(filename => filename.endsWith('.pyc')),
     [],
