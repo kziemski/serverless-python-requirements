@@ -23,10 +23,13 @@ const mkCommand = cmd => (args, options = {}) => {
     )
   );
   if (error) throw error;
-  if (status)
+  if (status) {
+    console.error(stdout.toString()):
+    console.error(stderr.toString()):
     throw new Error(
-      `${cmd} failed with status code ${status} and stderr: ${stderr}`
+      `${cmd} failed with status code ${status}`
     );
+  }
   return stdout && stdout.toString().trim();
 };
 const sls = mkCommand('sls');
