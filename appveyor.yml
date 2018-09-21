@@ -1,11 +1,6 @@
 version: '{build}'
 init:
-- ps: >-
-    Install-Product node 6
-
-    Install-Product python 3.6
-
-    npm i -g serverless
+- ps: npm i -g serverless
 build: off
 test_script:
 - cmd: >-
